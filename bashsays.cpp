@@ -10,16 +10,23 @@
 
 using namespace std;
 
-unsigned int caractere_largura = 5;
-unsigned int caractere_altura = 7;
-unsigned int caractere_espacamento = 2;
-unsigned int caractere_tamanho = caractere_largura + caractere_espacamento;
-unsigned int tempo = 50;
-unsigned int cor = 32;
-unsigned int cor_tempo = 0;
+unsigned short int caractere_largura = 5;
+unsigned short int caractere_altura = 7;
+unsigned short int caractere_espacamento = 2;
+unsigned short int caractere_tamanho = caractere_largura + caractere_espacamento;
+unsigned short int tempo = 50;
+unsigned short int cor = 32;
+unsigned short int cor_tempo = 0;
+unsigned short int cor_borda = 31;
+unsigned short int mensagens_quantidade = 1;
+
 bool infinitamente = false;
+bool paraDireita = false;
 bool debug = false;
+
 string simbolo = "\u2588";
+string fundo = "\u2591";
+string borda = "=";
 
 //Conjuntos de letras
 vector<vector<unsigned int>> caracteres = {
@@ -55,25 +62,25 @@ vector<vector<unsigned int>> caracteres = {
     {0,0,0,0,0, 0,0,0,1,0, 0,0,0,1,0, 0,0,1,0,0, 0,1,0,0,0, 0,1,0,0,0, 0,0,0,0,0},
 
     //Letra 0
-    {0,0,0,0,0, 0,1,1,1,0, 1,1,0,0,1, 1,0,1,0,1, 1,0,0,1,1, 0,1,1,1,0, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,1, 1,0,1,0,1, 1,0,0,1,1, 1,1,1,1,1, 0,0,0,0,0},
     //Número 1
     {0,0,0,0,0, 0,1,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,1,1,1,0, 0,0,0,0,0},
     //Número 2
-    {0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,1, 0,1,1,1,0, 1,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 0,1,1,1,0, 1,0,0,0,1, 0,0,1,1,0, 0,1,0,0,0, 1,1,1,1,1, 0,0,0,0,0},
     //Número 3
-    {0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,1, 0,0,1,1,1, 0,0,0,0,1, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 0,0,0,1,1, 0,1,1,1,1, 0,0,0,1,1, 1,1,1,1,1, 0,0,0,0,0},
     //Número 4
-    {0,0,0,0,0, 1,0,0,0,1, 1,0,0,0,1, 1,1,1,1,1, 0,0,0,0,1, 0,0,0,0,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,0,1,1, 1,1,0,1,1, 1,1,1,1,1, 0,0,0,1,1, 0,0,0,1,1, 0,0,0,0,0},
     //Número 5
     {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 0,1,1,1,0, 0,0,0,0,1, 1,1,1,1,1, 0,0,0,0,0},
     //Número 6
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 1,1,1,1,1, 1,0,0,0,1, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 1,1,1,1,1, 1,1,0,1,1, 1,1,1,1,1, 0,0,0,0,0},
     //Número 7
     {0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,1, 0,0,0,1,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,0,0,0},
     //Número 8
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,1, 1,1,1,1,1, 1,0,0,0,1, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,1,1, 1,1,1,1,1, 1,1,0,1,1, 1,1,1,1,1, 0,0,0,0,0},
     //Número 9
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,1, 1,1,1,1,1, 0,0,0,0,1, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,1,1, 1,1,1,1,1, 0,0,0,1,1, 1,1,1,1,1, 0,0,0,0,0},
 
     //Símbolo :
     {0,0,0,0,0, 0,0,0,0,0, 0,1,1,0,0, 0,0,0,0,0, 0,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0},
@@ -86,62 +93,75 @@ vector<vector<unsigned int>> caracteres = {
     //Símbolo >
     {0,0,0,0,0, 1,1,0,0,0, 0,0,1,0,0, 0,0,0,1,1, 0,0,1,0,0, 1,1,0,0,0, 0,0,0,0,0},
     //Símbolo ?
-    {0,0,0,0,0, 0,1,1,1,0, 1,0,0,0,1, 0,0,1,1,0, 0,0,0,0,0, 0,0,1,0,0, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,1, 0,0,1,1,1, 0,0,0,0,0, 0,0,1,0,0, 0,0,0,0,0},
     //Símbolo @
     {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,1, 1,0,1,1,1, 1,0,1,0,1, 1,0,1,1,1, 0,0,0,0,0},
 
     //Letra A
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,1, 1,1,1,1,1, 1,0,0,0,1, 1,0,0,0,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,1,1, 1,1,1,1,1, 1,1,0,1,1, 1,1,0,1,1, 0,0,0,0,0},
     //Letra B
     {0,0,0,0,0, 1,1,1,1,0, 1,0,0,1,0, 1,1,1,1,1, 1,0,0,0,1, 1,1,1,1,1, 0,0,0,0,0},
     //Letra C
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 1,1,0,0,0, 1,1,0,0,0, 1,1,1,1,1, 0,0,0,0,0},
     //Letra D
-    {0,0,0,0,0, 1,1,1,1,0, 1,0,0,0,1, 1,0,0,0,1, 1,0,0,0,1, 1,1,1,1,0, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,0, 1,1,0,0,1, 1,1,0,0,1, 1,1,0,0,1, 1,1,1,1,0, 0,0,0,0,0},
     //Letra E
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 1,1,1,1,0, 1,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 1,1,1,1,0, 1,1,0,0,0, 1,1,1,1,1, 0,0,0,0,0},
     //Letra F
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 1,1,1,1,0, 1,0,0,0,0, 1,0,0,0,0, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 1,1,1,1,0, 1,1,0,0,0, 1,1,0,0,0, 0,0,0,0,0},
     //Letra G
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 1,0,1,1,1, 1,0,0,0,1, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 1,1,0,1,1, 1,1,0,0,1, 1,1,1,1,1, 0,0,0,0,0},
     //Letra H
-    {0,0,0,0,0, 1,0,0,0,1, 1,0,0,0,1, 1,1,1,1,1, 1,0,0,0,1, 1,0,0,0,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,0,1,1, 1,1,0,1,1, 1,1,1,1,1, 1,1,0,1,1, 1,1,0,1,1, 0,0,0,0,0},
     //Letra I
-    {0,0,0,0,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,0,0,0},
+    {0,0,0,0,0, 0,1,1,1,0, 0,0,0,0,0, 0,1,1,1,0, 0,1,1,1,0, 0,1,1,1,0, 0,0,0,0,0},
     //Letra J
-    {0,0,0,0,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,1,0,0, 1,0,1,0,0, 1,1,1,0,0, 0,0,0,0,0},
+    {0,0,0,0,0, 0,0,1,1,0, 0,0,0,0,0, 0,0,1,1,0, 1,0,1,1,0, 1,1,1,1,0, 0,0,0,0,0},
     //Letra K
-    {0,0,0,0,0, 1,0,0,0,1, 1,0,0,1,0, 1,1,1,0,0, 1,0,0,1,0, 1,0,0,0,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,0,0,1, 1,1,0,1,0, 1,1,1,0,0, 1,1,0,1,0, 1,1,0,0,1, 0,0,0,0,0},
     //Letra L
-    {0,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,0,0,0, 1,1,0,0,0, 1,1,0,0,0, 1,1,0,0,0, 1,1,1,1,1, 0,0,0,0,0},
     //Letra M
     {0,0,0,0,0, 1,1,0,1,1, 1,0,1,0,1, 1,0,1,0,1, 1,0,0,0,1, 1,0,0,0,1, 0,0,0,0,0},
     //Letra N
     {0,0,0,0,0, 1,1,0,0,1, 1,0,1,0,1, 1,0,0,1,1, 1,0,0,0,1, 1,0,0,0,1, 0,0,0,0,0},
     //Letra O
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,1, 1,0,0,0,1, 1,0,0,0,1, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,1,1, 1,1,0,1,1, 1,1,0,1,1, 1,1,1,1,1, 0,0,0,0,0},
     //Letra P
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,1, 1,1,1,1,1, 1,0,0,0,0, 1,0,0,0,0, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,1,1, 1,1,1,1,1, 1,1,0,0,0, 1,1,0,0,0, 0,0,0,0,0},
     //Letra Q
     {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,1, 1,0,0,0,1, 1,0,0,1,1, 1,1,1,1,1, 0,0,0,0,0},
     //Letra R
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,1, 1,1,1,1,0, 1,0,0,0,1, 1,0,0,0,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,1, 1,1,1,1,0, 1,1,0,0,1, 1,1,0,0,1, 0,0,0,0,0},
     //Letra S
-    {0,0,0,0,0, 1,1,1,1,1, 1,0,0,0,0, 1,1,1,1,1, 0,0,0,0,1, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,1,1,1, 1,1,0,0,0, 1,1,1,1,1, 0,0,0,1,1, 1,1,1,1,1, 0,0,0,0,0},
     //Letra T
     {0,0,0,0,0, 1,1,1,1,1, 0,0,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,0,0,0},
     //Letra U
-    {0,0,0,0,0, 1,0,0,0,1, 1,0,0,0,1, 1,0,0,0,1, 1,0,0,0,1, 1,1,1,1,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,1,0,1,1, 1,1,0,1,1, 1,1,0,1,1, 1,1,0,1,1, 1,1,1,1,1, 0,0,0,0,0},
     //Letra V
-    {0,0,0,0,0, 1,0,0,0,1, 1,0,0,0,1, 0,1,0,1,0, 0,1,0,1,0, 0,0,1,0,0, 0,0,0,0,0},
+    {0,0,0,0,0, 1,0,0,0,1, 1,0,0,0,1, 1,1,0,1,1, 0,1,0,1,0, 0,0,1,0,0, 0,0,0,0,0},
     //Letra W
     {0,0,0,0,0, 1,0,0,0,1, 1,0,0,0,1, 1,0,1,0,1, 1,0,1,0,1, 1,1,0,1,1, 0,0,0,0,0},
     //Letra X
-    {0,0,0,0,0, 1,0,0,0,1, 0,1,0,1,0, 0,0,1,0,0, 0,1,0,1,0, 1,0,0,0,1, 0,0,0,0,0},
+    {0,0,0,0,0, 1,0,0,0,1, 1,1,0,1,1, 0,1,1,1,0, 1,1,0,1,1, 1,0,0,0,1, 0,0,0,0,0},
     //Letra Y
     {0,0,0,0,0, 1,0,0,0,1, 0,1,0,1,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,0,0,0},
     //Letra Z
-    {0,0,0,0,0, 1,1,1,1,1, 0,0,0,1,0, 0,0,1,0,0, 0,1,0,0,0, 1,1,1,1,1, 0,0,0,0,0}
+    {0,0,0,0,0, 1,1,1,1,1, 0,0,0,1,0, 0,0,1,0,0, 0,1,0,0,0, 1,1,1,1,1, 0,0,0,0,0},
+    
+    //Símbolo [
+    {0,0,0,0,0, 0,1,1,1,0, 0,1,0,0,0, 0,1,0,0,0, 0,1,0,0,0, 0,1,1,1,0, 0,0,0,0,0},
+    //Símbolo "\"
+    {0,0,0,0,0, 0,1,0,0,0, 0,1,0,0,0, 0,0,1,0,0, 0,0,0,1,0, 0,0,0,1,0, 0,0,0,0,0},
+    //Símbolo ]
+    {0,0,0,0,0, 0,1,1,1,0, 0,0,0,1,0, 0,0,0,1,0, 0,0,0,1,0, 0,1,1,1,0, 0,0,0,0,0},
+    //Símbolo ^
+    {0,0,0,0,0, 0,0,1,0,0, 0,1,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+    //Símbolo _
+    {0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 0,0,0,0,0},
+    //Símbolo `
+    {0,0,0,0,0, 0,1,0,0,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0}
 };
 
 bool imprimirCaractere(char u,unsigned int linha,unsigned int* colunas,unsigned int startpos){
@@ -150,18 +170,18 @@ bool imprimirCaractere(char u,unsigned int linha,unsigned int* colunas,unsigned 
             char unicode = toupper(u);
 
             if (unicode == ' ')
-                cout << " ";
+                cout << fundo;
             else{
-                unsigned int caractere;
-                if (unicode >= '!')
+                unsigned int caractere; 
+                if (unicode >= '!' && unicode < '{')
                     caractere = caracteres[unicode - '!'][s + (linha * caractere_largura)];
-                //else
-                //    caractere = caracteres[unicode - '0' + 26][s + (linha * caractere_largura)];
-                
+                else
+                    caractere = caracteres['?' - '!'][s + (linha * caractere_largura)];
+
                 if (caractere == 1)
                     cout << simbolo;
                 else
-                    cout << " ";
+                    cout << fundo;
             }
             *colunas = *colunas - 1;
             if (*colunas <= 0)
@@ -171,7 +191,7 @@ bool imprimirCaractere(char u,unsigned int linha,unsigned int* colunas,unsigned 
     //Espaçamento entre caracteres
     if (*colunas > 0){
         for (unsigned int s=0;s<caractere_espacamento;s++){
-            cout << " ";
+            cout << fundo;
             *colunas = *colunas - 1;
             if (*colunas <= 0)
                 return true;
@@ -222,6 +242,13 @@ void imprimirMensagem(string texto,unsigned int espaco,unsigned int limite){
     }
 }
 
+void imprimirBorda(int tamanho){
+    cout << "\x1B[" << cor_borda << "m";
+    for (unsigned int i=0;i<tamanho;i++)
+        cout << borda;
+    cout << "\033[0m" << endl;
+}
+
 int main(int argc, char* argv[]){
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -231,9 +258,12 @@ int main(int argc, char* argv[]){
         cout << "Bashsays v1.0 by Ewerton Bramos" << endl;
         cout << "   bashsays [-args] [args value] \"message\"\n" << endl;
         cout << "   -i: run the message forever." << endl;
+        cout << "   -r: run the message from left to right." << endl;
         cout << "   -s: run the message at a slower pace. Can be repeated up to 5 times." << endl;
         cout << "   -f: run the message at a faster pace. Can be repeated up to 5 times." << endl;
+        cout << "   -q: show the message multiple times at the screen. Can be repeated up to 2 times." << endl;
         cout << "   -c [1-16]: change default/first text color." << endl;
+        cout << "   -b [1-16]: change border color." << endl;
         cout << "      1: black         9: bright black" << endl;
         cout << "      2: red          10: bright red" << endl;
         cout << "      3: green        11: bright green" << endl;
@@ -243,19 +273,24 @@ int main(int argc, char* argv[]){
         cout << "      7: cyan         15: bright cyan" << endl;
         cout << "      8: white        16: bright white" << endl;
         cout << "   -t [0|1+]: color blinking timeout." << endl;
-        cout << "   -p: change message symbols.\n" << endl;
+        cout << "   -p [text symbol] [bg symbol] [border symbol]: change message symbols.\n" << endl;
         cout << "   Exit the program with CTRL^C or Q.\n" << endl;
         return 0;
     }
     
     //Obter parâmetros opicionais
     unsigned int argst = 1;
-
     if (argv[1][0] == '-'){
         for (unsigned int p=1;p<strlen(argv[1]);p++){
             switch (argv[1][p]){
                 case 'i':
                     infinitamente = true;
+                    break;
+                case 'r':
+                    paraDireita = true;
+                    break;
+                case 'q':
+                    mensagens_quantidade++;
                     break;
                 case 's':
                     tempo += 10;
@@ -269,11 +304,19 @@ int main(int argc, char* argv[]){
                     break;
                 case 'c':
                     argst++;
-                    cor = 30 + (*argv[argst] - '0');
-                    if (cor > 38)
-                        cor += 60;
-                    if (cor > 98);
-                        cor = 30;
+                    cor = *argv[argst] - '0';
+                    if (cor > 8)
+                        cor += 81;
+                    else
+                        cor += 29;
+                    break;
+                case 'b':
+                    argst++;
+                    cor_borda = *argv[argst] - '0';
+                    if (cor_borda > 8)
+                        cor_borda += 81;
+                    else
+                        cor_borda += 29;
                     break;
                 case 't':
                     argst++;
@@ -282,6 +325,10 @@ int main(int argc, char* argv[]){
                 case 'p':
                     argst++;
                     simbolo = argv[argst][0];
+                    if (strlen(argv[argst]) > 1)
+                        fundo = argv[argst][1];
+                    if (strlen(argv[argst]) > 2)
+                        borda = argv[argst][2];
                     break;
                 case 'd':
                     debug = true;
@@ -297,7 +344,7 @@ int main(int argc, char* argv[]){
     }
 
     //Exibir mensagem
-    string texto_mensagem = "";
+    string texto_mensagem = " ";
     for (unsigned int i=argst;i<argc;i++)
         texto_mensagem += string(argv[i]) + string(" ");
 
@@ -311,6 +358,16 @@ int main(int argc, char* argv[]){
     unsigned int texto_x = w.ws_col + texto_tamanho;
     unsigned int espacamento_topo = (w.ws_row/2) - (caractere_altura/2);
     unsigned int cor_espera = cor_tempo;
+
+    if (mensagens_quantidade > 3)
+        mensagens_quantidade = 3;
+    for (unsigned int i=1;i<mensagens_quantidade;i++)
+        espacamento_topo -= (caractere_altura/2);
+
+    if (borda != "")
+        espacamento_topo -= 2;
+    if (paraDireita)
+        texto_x = 1;
     
     cout << "\x1B[2J\x1B[H";
     
@@ -325,11 +382,29 @@ int main(int argc, char* argv[]){
         for (unsigned int s=0;s<espacamento_topo;s++)
             cout << endl;
         
-        //Escrever mensagem e alterar posição
-        imprimirMensagem(texto_mensagem,texto_x,w.ws_col);
-        texto_x -= 1;
+        //Bordas e mensagem
+        for (unsigned int i=0;i<mensagens_quantidade;i++){
+            if (borda != "")
+                imprimirBorda(w.ws_col);
+            
+            unsigned int esp;
+            if (i == 1)
+                esp = (w.ws_col + texto_tamanho) - texto_x;
+            else
+                esp = texto_x;
+            imprimirMensagem(texto_mensagem,esp,w.ws_col);
+        }
+        if (borda != "")
+            imprimirBorda(w.ws_col);
+
+        //Alterar posição
         this_thread::sleep_for(chrono::milliseconds(tempo));
-        cout << "\x1B[2J\x1B[H"; //Limpar terminal
+        if (paraDireita){
+            texto_x++;
+            if (texto_x > w.ws_col + texto_tamanho)
+                texto_x = 0;
+        }else
+            texto_x--;
 
         //Alterar cor e tempo de cor
         if (cor_tempo > 0){
@@ -345,8 +420,14 @@ int main(int argc, char* argv[]){
         }
 
         //Repetir caso esteja em modo infinito
-        if (infinitamente && texto_x <= 0)
-            texto_x = w.ws_col + texto_tamanho;
+        if (infinitamente && texto_x <= 0){
+            if (paraDireita)
+                texto_x = 1;
+            else
+                texto_x = w.ws_col + texto_tamanho;
+        }
+        
+        cout << "\x1B[2J\x1B[H"; //Limpar terminal
     }
 
     return 0;
