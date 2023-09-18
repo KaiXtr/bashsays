@@ -1,3 +1,7 @@
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -164,17 +168,42 @@ vector<vector<unsigned int>> caracteres = {
     {0,0,0,0,0, 0,1,0,0,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0}
 };
 
+int kbhit(){
+    struct termios oldt, newt;
+    int ch;
+    int oldf;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+    ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+    if (ch == 'q' || ch == 'Q'){
+        ungetc(ch, stdin);
+        return 1;
+    }
+
+  return 0;
+}
+
 bool imprimirCaractere(char u,unsigned int linha,unsigned int* colunas,unsigned int startpos){
     if (startpos < caractere_largura){
         for (unsigned int s=startpos;s<caractere_largura;s++){
-            char unicode = toupper(u);
-
-            if (unicode == ' ')
+            if (u == ' ')
                 cout << fundo;
             else{
-                unsigned int caractere; 
-                if (unicode >= '!' && unicode < '{')
-                    caractere = caracteres[unicode - '!'][s + (linha * caractere_largura)];
+                unsigned int caractere;
+                if (u >= 'a' && u <= 'z')
+                    u = toupper(u);
+                if (u >= '!' && u < '{')
+                    caractere = caracteres[u - '!'][s + (linha * caractere_largura)];
                 else
                     caractere = caracteres['?' - '!'][s + (linha * caractere_largura)];
 
@@ -202,7 +231,8 @@ bool imprimirCaractere(char u,unsigned int linha,unsigned int* colunas,unsigned 
 
 void imprimirMensagem(string texto,unsigned int espaco,unsigned int limite){
     unsigned int colunas = 0;
-    unsigned int tamanho = caractere_tamanho * texto.length();
+    unsigned int mensagem_tamanho = texto.length();
+    unsigned int tamanho = caractere_tamanho * mensagem_tamanho;
 
     //Para cada linha de cada caractere
     for (unsigned int y=0;y<caractere_altura;y++){
@@ -213,7 +243,7 @@ void imprimirMensagem(string texto,unsigned int espaco,unsigned int limite){
         //Espaçamento lateral
         if (espaco > tamanho){
             for (unsigned int s=0;s<espaco-tamanho;s++){
-                cout << " ";
+                cout << fundo;
                 colunas--;
             }
         }
@@ -222,17 +252,26 @@ void imprimirMensagem(string texto,unsigned int espaco,unsigned int limite){
             //Caractere inicial, caso mensagem esteja sumindo
             unsigned int stcar = 0;
             if (espaco <= tamanho)
-                stcar = texto.length() - (espaco/caractere_tamanho) - 1;
+                stcar = mensagem_tamanho - (espaco/caractere_tamanho) - 1;
 
             //Para cada caractere
-            for (unsigned int c=stcar;c<texto.length();c++){
+            for (unsigned int c=stcar;c<mensagem_tamanho;c++){
                 //Posição inicial, caso mensagem esteja sumindo
                 unsigned int stpos = 0;
-                if (espaco <= tamanho && c == stcar)
+                if ((espaco <= tamanho) && (c == stcar))
                     stpos = caractere_tamanho - (espaco % caractere_tamanho);
                 
                 //Para cada coluna em cada caractere
                 if (imprimirCaractere(texto[c],y,&colunas,stpos))
+                    break;
+            }
+        }
+        //Espaçamento lateral
+        if (espaco <= limite){
+            for (unsigned int s=0;s<limite-espaco;s++){
+                cout << fundo;
+                colunas--;
+                if (colunas <= 0)
                     break;
             }
         }
@@ -420,7 +459,7 @@ int main(int argc, char* argv[]){
         }
 
         //Repetir caso esteja em modo infinito
-        if (infinitamente && texto_x <= 0){
+        if (texto_x <= 0 && infinitamente){
             if (paraDireita)
                 texto_x = 1;
             else
@@ -428,6 +467,10 @@ int main(int argc, char* argv[]){
         }
         
         cout << "\x1B[2J\x1B[H"; //Limpar terminal
+
+        //Limpar o programa
+        if (kbhit())
+            texto_x = 0;
     }
 
     return 0;
