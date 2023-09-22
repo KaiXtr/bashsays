@@ -1,16 +1,9 @@
-#include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
-
 #include <sys/ioctl.h>
-#include <stdio.h>
+#include <termios.h>
+#include <fcntl.h>
 #include <unistd.h>
-#include <iostream>
 #include <cstring>
-#include <chrono>
-#include <thread>
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -18,7 +11,7 @@ unsigned short int caractere_largura = 5;
 unsigned short int caractere_altura = 7;
 unsigned short int caractere_espacamento = 2;
 unsigned short int caractere_tamanho = caractere_largura + caractere_espacamento;
-unsigned short int tempo = 50;
+unsigned short int tempo = 5;
 unsigned short int cor = 32;
 unsigned short int cor_tempo = 0;
 unsigned short int cor_borda = 31;
@@ -33,7 +26,7 @@ string fundo = "\u2591";
 string borda = "=";
 
 //Conjuntos de letras
-vector<vector<unsigned int>> caracteres = {
+unsigned int caracteres[64][35] = {
     //Símbolo !
     {0,0,0,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,1,0,0, 0,0,0,0,0},
     //Símbolo ""
@@ -197,7 +190,7 @@ bool imprimirCaractere(char u,unsigned int linha,unsigned int* colunas,unsigned 
     if (startpos < caractere_largura){
         for (unsigned int s=startpos;s<caractere_largura;s++){
             if (u == ' ')
-                cout << fundo;
+                printf("%s",fundo.c_str());
             else{
                 unsigned int caractere;
                 if (u >= 'a' && u <= 'z')
@@ -208,9 +201,9 @@ bool imprimirCaractere(char u,unsigned int linha,unsigned int* colunas,unsigned 
                     caractere = caracteres['?' - '!'][s + (linha * caractere_largura)];
 
                 if (caractere == 1)
-                    cout << simbolo;
+                    printf("%s",simbolo.c_str());
                 else
-                    cout << fundo;
+                    printf("%s",fundo.c_str());
             }
             *colunas = *colunas - 1;
             if (*colunas <= 0)
@@ -220,7 +213,7 @@ bool imprimirCaractere(char u,unsigned int linha,unsigned int* colunas,unsigned 
     //Espaçamento entre caracteres
     if (*colunas > 0){
         for (unsigned int s=0;s<caractere_espacamento;s++){
-            cout << fundo;
+            printf("%s",fundo.c_str());
             *colunas = *colunas - 1;
             if (*colunas <= 0)
                 return true;
@@ -238,12 +231,12 @@ void imprimirMensagem(string texto,unsigned int espaco,unsigned int limite){
     for (unsigned int y=0;y<caractere_altura;y++){
         colunas = limite;
         if (cor > 30)
-            cout << "\x1B[" << cor << "m";
+            printf("\x1B[%dm",cor);
 
         //Espaçamento lateral
         if (espaco > tamanho){
             for (unsigned int s=0;s<espaco-tamanho;s++){
-                cout << fundo;
+                printf("%s",fundo.c_str());
                 colunas--;
             }
         }
@@ -269,23 +262,23 @@ void imprimirMensagem(string texto,unsigned int espaco,unsigned int limite){
         //Espaçamento lateral
         if (espaco <= limite){
             for (unsigned int s=0;s<limite-espaco;s++){
-                cout << fundo;
+                printf("%s",fundo.c_str());
                 colunas--;
                 if (colunas <= 0)
                     break;
             }
         }
         if (cor > 30)
-            cout << "\033[0m";
-        cout << endl;
+            printf("\033[0m");
+        printf("\n");
     }
 }
 
 void imprimirBorda(int tamanho){
-    cout << "\x1B[" << cor_borda << "m";
+    printf("\x1B[%dm",cor_borda);
     for (unsigned int i=0;i<tamanho;i++)
-        cout << borda;
-    cout << "\033[0m" << endl;
+        printf("%s",borda.c_str());
+    printf("\033[0m\n");
 }
 
 int main(int argc, char* argv[]){
@@ -294,26 +287,26 @@ int main(int argc, char* argv[]){
 
     //Exibir ajuda
     if ((argc == 1) || (argc == 2 && argv[1][0] == '-')){
-        cout << "Bashsays v1.0 by Ewerton Bramos" << endl;
-        cout << "   bashsays [-args] [args value] \"message\"\n" << endl;
-        cout << "   -i: run the message forever." << endl;
-        cout << "   -r: run the message from left to right." << endl;
-        cout << "   -s: run the message at a slower pace. Can be repeated up to 5 times." << endl;
-        cout << "   -f: run the message at a faster pace. Can be repeated up to 5 times." << endl;
-        cout << "   -q: show the message multiple times at the screen. Can be repeated up to 2 times." << endl;
-        cout << "   -c [1-16]: change default/first text color." << endl;
-        cout << "   -b [1-16]: change border color." << endl;
-        cout << "      1: black         9: bright black" << endl;
-        cout << "      2: red          10: bright red" << endl;
-        cout << "      3: green        11: bright green" << endl;
-        cout << "      4: yellow       12: bright yellow" << endl;
-        cout << "      5: blue         13: bright blue" << endl;
-        cout << "      6: magenta      14: bright magenta" << endl;
-        cout << "      7: cyan         15: bright cyan" << endl;
-        cout << "      8: white        16: bright white" << endl;
-        cout << "   -t [0|1+]: color blinking timeout." << endl;
-        cout << "   -p [text symbol] [bg symbol] [border symbol]: change message symbols.\n" << endl;
-        cout << "   Exit the program with CTRL^C or Q.\n" << endl;
+        printf("Bashsays v1.0 by Ewerton Bramos\n");
+        printf("   bashsays [-args] [args value] \"message\"\n\n");
+        printf("   -i: run the message forever.\n");
+        printf("   -r: run the message from left to right.\n");
+        printf("   -s: run the message at a slower pace. Can be repeated up to 5 times.\n");
+        printf("   -f: run the message at a faster pace. Can be repeated up to 5 times.\n");
+        printf("   -q: show the message multiple times at the screen. Can be repeated up to 2 times.\n");
+        printf("   -c [1-16]: change default/first text color.\n");
+        printf("   -b [1-16]: change border color.\n");
+        printf("      1: black         9: bright black\n");
+        printf("      2: red          10: bright red\n");
+        printf("      3: green        11: bright green\n");
+        printf("      4: yellow       12: bright yellow\n");
+        printf("      5: blue         13: bright blue\n");
+        printf("      6: magenta      14: bright magenta\n");
+        printf("      7: cyan         15: bright cyan\n");
+        printf("      8: white        16: bright white\n");
+        printf("   -t [0|1+]: color blinking timeout.\n");
+        printf("   -p [text symbol] [bg symbol] [border symbol]: change message symbols.\n\n");
+        printf("   Exit the program with CTRL^C or Q.\n\n");
         return 0;
     }
     
@@ -332,14 +325,14 @@ int main(int argc, char* argv[]){
                     mensagens_quantidade++;
                     break;
                 case 's':
-                    tempo += 10;
-                    if (tempo > 100)
-                        tempo = 100;
+                    tempo++;
+                    if (tempo > 10)
+                        tempo = 10;
                     break;
                 case 'f':
-                    tempo -= 10;
-                    if (tempo < 5)
-                        tempo = 5;
+                    tempo--;
+                    if (tempo < 1)
+                        tempo = 1;
                     break;
                 case 'c':
                     argst++;
@@ -378,7 +371,7 @@ int main(int argc, char* argv[]){
     }
     //Se tiver argumentos com valores sem texto a exibir, finalizar
     if (argst >= argc){
-        cout << "Display message is missing." << endl;
+        printf("Display message is missing.\n");
         return 0;
     }
 
@@ -386,12 +379,12 @@ int main(int argc, char* argv[]){
     string texto_mensagem = " ";
     for (unsigned int i=argst;i<argc;i++)
         texto_mensagem += string(argv[i]) + string(" ");
-
+    
     //Obter mensagem a partir de um comando pipe
     /*vector<char> someData(100, '-');
     cin.read(&someData.front(), someData.size());
     someData.back() = '\0';
-    cout << "DADOS: " << someData.data()[0] << endl;*/
+    printf("DADOS: " << someData.data()[0] << endl;*/
 
     unsigned int texto_tamanho = caractere_tamanho * texto_mensagem.length();
     unsigned int texto_x = w.ws_col + texto_tamanho;
@@ -408,23 +401,23 @@ int main(int argc, char* argv[]){
     if (paraDireita)
         texto_x = 1;
     
-    cout << "\x1B[2J\x1B[H";
+    printf("\x1B[2J\x1B[H");
     
     while (texto_x > 0){
         if (debug){
-            cout << "parameters: " << (strlen(argv[1]) - 1) << "; sleep: " << tempo;
-            cout << "; color: " << cor << "; color timeout: " << cor_tempo;
-            cout << "; window width: " << w.ws_col << "; text size: " << texto_tamanho << endl;
+            printf("parameters: %d; sleep: %d",(strlen(argv[1]) - 1),tempo);
+            printf("; color: %d; color timeout: %d",cor,cor_tempo);
+            printf("; window width: %d; text size: %d\n",w.ws_col,texto_tamanho);
         }
 
         //Espaçamento superior
         for (unsigned int s=0;s<espacamento_topo;s++)
-            cout << endl;
+            printf("\n");
         
         //Bordas e mensagem
         for (unsigned int i=0;i<mensagens_quantidade;i++){
             if (borda != "")
-                imprimirBorda(w.ws_col);
+                imprimirBorda(w.ws_col); 
             
             unsigned int esp;
             if (i == 1)
@@ -437,7 +430,7 @@ int main(int argc, char* argv[]){
             imprimirBorda(w.ws_col);
 
         //Alterar posição
-        this_thread::sleep_for(chrono::milliseconds(tempo));
+        usleep(tempo * 10000);
         if (paraDireita){
             texto_x++;
             if (texto_x > w.ws_col + texto_tamanho)
@@ -465,8 +458,7 @@ int main(int argc, char* argv[]){
             else
                 texto_x = w.ws_col + texto_tamanho;
         }
-        
-        cout << "\x1B[2J\x1B[H"; //Limpar terminal
+        printf("\x1B[2J\x1B[H"); //Limpar terminal
 
         //Limpar o programa
         if (kbhit())
