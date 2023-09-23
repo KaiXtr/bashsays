@@ -9,7 +9,7 @@ Bashsays v1.0.0 por Ewerton Bramos
    -q: a mensagem é exibida múltiplas vezes na tela. Pode ser repetida até 2 vezes.
    -c [1-16]: altera cor padrão ou primeira cor da mensagem.
    -b [1-16]: altera a cor da borda da mensagem.
-      1: preto         9: preto claro
+      1: preto         9:  preto claro
       2: vermelho      10: vermelho claro
       3: verde         11: verde claro
       4: amarelo       12: amarelo claro

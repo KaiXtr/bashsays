@@ -27,6 +27,3 @@ cp %{name} $RPM_BUILD_ROOT/%{_bindir}
 %changelog
 * Sun Sep 17 2023 KaiXtr <ewertonmatheus2113@gmail.com>
 - primeira versão sendo preparada.
-
-* Sex Sep 22 2023 KaiXtr <ewertonmatheus2113@gmail.com>
-- versão oficial sendo preparada.
