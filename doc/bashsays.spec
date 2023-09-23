@@ -1,7 +1,7 @@
 Name:           bashsays
-Version:        0.0.1
+Version:        1.0.0
 Release:        1%{?dist}
-Summary:        A program that displays a scrolling message.
+Summary:        Um simples programa que exibe uma mensagem pela tela.
 
 License:        GPL
 URL:            https://github.com/KaiXtr/bashsays
@@ -10,8 +10,8 @@ Source0:        %{name}-%{version}.tar.gz
 Requires:       bash
 
 %description
-A simple program that displays a scrolling message
-on a variety of colors, speed and parameters.
+Um simples programa que exibe uma mensagem
+em uma variedade de cores, velocidades e parâmetros.
 
 %prep
 %setup -q
@@ -27,3 +27,6 @@ cp %{name} $RPM_BUILD_ROOT/%{_bindir}
 %changelog
 * Sun Sep 17 2023 KaiXtr <ewertonmatheus2113@gmail.com>
 - primeira versão sendo preparada.
+
+* Sex Sep 22 2023 KaiXtr <ewertonmatheus2113@gmail.com>
+- versão oficial sendo preparada.

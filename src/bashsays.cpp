@@ -26,7 +26,7 @@ string fundo = "\u2591";
 string borda = "=";
 
 //Conjuntos de letras
-unsigned int caracteres[64][35] = {
+bool caracteres[64][35] = {
     //Símbolo !
     {0,0,0,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,1,0,0, 0,0,0,0,0},
     //Símbolo ""
@@ -143,7 +143,7 @@ unsigned int caracteres[64][35] = {
     //Letra X
     {0,0,0,0,0, 1,0,0,0,1, 1,1,0,1,1, 0,1,1,1,0, 1,1,0,1,1, 1,0,0,0,1, 0,0,0,0,0},
     //Letra Y
-    {0,0,0,0,0, 1,0,0,0,1, 0,1,0,1,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,0,0,0},
+    {0,0,0,0,0, 1,0,0,0,1, 1,1,0,1,1, 0,1,1,1,0, 0,0,1,0,0, 0,0,1,0,0, 0,0,0,0,0},
     //Letra Z
     {0,0,0,0,0, 1,1,1,1,1, 0,0,0,1,0, 0,0,1,0,0, 0,1,0,0,0, 1,1,1,1,1, 0,0,0,0,0},
     
@@ -161,7 +161,7 @@ unsigned int caracteres[64][35] = {
     {0,0,0,0,0, 0,1,0,0,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0}
 };
 
-int kbhit(){
+bool kbhit(){
     struct termios oldt, newt;
     int ch;
     int oldf;
@@ -189,18 +189,19 @@ int kbhit(){
 bool imprimirCaractere(char u,unsigned int linha,unsigned int* colunas,unsigned int startpos){
     if (startpos < caractere_largura){
         for (unsigned int s=startpos;s<caractere_largura;s++){
-            if (u == ' ')
+            if (u == ' ' || u == '\n')
                 printf("%s",fundo.c_str());
             else{
-                unsigned int caractere;
                 if (u >= 'a' && u <= 'z')
                     u = toupper(u);
+                
+                bool ch;
                 if (u >= '!' && u < '{')
-                    caractere = caracteres[u - '!'][s + (linha * caractere_largura)];
+                    ch = caracteres[u - '!'][s + (linha * caractere_largura)];
                 else
-                    caractere = caracteres['?' - '!'][s + (linha * caractere_largura)];
+                    ch = caracteres['?' - '!'][s + (linha * caractere_largura)];
 
-                if (caractere == 1)
+                if (ch)
                     printf("%s",simbolo.c_str());
                 else
                     printf("%s",fundo.c_str());
@@ -282,31 +283,16 @@ void imprimirBorda(int tamanho){
 }
 
 int main(int argc, char* argv[]){
-    struct winsize w;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    string texto_mensagem = " ";
 
     //Exibir ajuda
     if ((argc == 1) || (argc == 2 && argv[1][0] == '-')){
-        printf("Bashsays v1.0 by Ewerton Bramos\n");
-        printf("   bashsays [-args] [args value] \"message\"\n\n");
-        printf("   -i: run the message forever.\n");
-        printf("   -r: run the message from left to right.\n");
-        printf("   -s: run the message at a slower pace. Can be repeated up to 5 times.\n");
-        printf("   -f: run the message at a faster pace. Can be repeated up to 5 times.\n");
-        printf("   -q: show the message multiple times at the screen. Can be repeated up to 2 times.\n");
-        printf("   -c [1-16]: change default/first text color.\n");
-        printf("   -b [1-16]: change border color.\n");
-        printf("      1: black         9: bright black\n");
-        printf("      2: red          10: bright red\n");
-        printf("      3: green        11: bright green\n");
-        printf("      4: yellow       12: bright yellow\n");
-        printf("      5: blue         13: bright blue\n");
-        printf("      6: magenta      14: bright magenta\n");
-        printf("      7: cyan         15: bright cyan\n");
-        printf("      8: white        16: bright white\n");
-        printf("   -t [0|1+]: color blinking timeout.\n");
-        printf("   -p [text symbol] [bg symbol] [border symbol]: change message symbols.\n\n");
-        printf("   Exit the program with CTRL^C or Q.\n\n");
+        FILE *ajd;
+        ajd = fopen("doc/ajuda.txt","r");
+        char txt[100];
+        while (fgets(txt,100,ajd))
+            printf("%s",txt);
+        fclose(ajd);
         return 0;
     }
     
@@ -336,7 +322,7 @@ int main(int argc, char* argv[]){
                     break;
                 case 'c':
                     argst++;
-                    cor = *argv[argst] - '0';
+                    cor = stoi(argv[argst]);
                     if (cor > 8)
                         cor += 81;
                     else
@@ -344,7 +330,7 @@ int main(int argc, char* argv[]){
                     break;
                 case 'b':
                     argst++;
-                    cor_borda = *argv[argst] - '0';
+                    cor_borda = stoi(argv[argst]);
                     if (cor_borda > 8)
                         cor_borda += 81;
                     else
@@ -352,7 +338,7 @@ int main(int argc, char* argv[]){
                     break;
                 case 't':
                     argst++;
-                    cor_tempo = *argv[argst] - '0';
+                    cor_tempo = stoi(argv[argst]);
                     break;
                 case 'p':
                     argst++;
@@ -362,6 +348,10 @@ int main(int argc, char* argv[]){
                     if (strlen(argv[argst]) > 2)
                         borda = argv[argst][2];
                     break;
+                case 'o':
+                    argst++;
+                    texto_mensagem = argv[argst];
+                    break;
                 case 'd':
                     debug = true;
                     break;
@@ -369,22 +359,37 @@ int main(int argc, char* argv[]){
         }
         argst++;
     }
-    //Se tiver argumentos com valores sem texto a exibir, finalizar
-    if (argst >= argc){
-        printf("Display message is missing.\n");
-        return 0;
+    //Obter mensagem a partir de arquivo externo
+    if (texto_mensagem != " "){
+        FILE *ajd;
+        ajd = fopen(texto_mensagem.c_str(),"r");
+        texto_mensagem = " ";
+        char txt[100];
+        while (fgets(txt,100,ajd))
+            texto_mensagem += txt;
+        fclose(ajd);
     }
+    else{
+        //Se tiver argumentos com valores sem texto a exibir, finalizar
+        if (argst >= argc){
+            printf("Você se esqueceu de informar o texto a ser exibido ou o valor dos parâmetros informados!\n");
+            return 0;
+        }
 
-    //Exibir mensagem
-    string texto_mensagem = " ";
-    for (unsigned int i=argst;i<argc;i++)
-        texto_mensagem += string(argv[i]) + string(" ");
+        //Exibir mensagem
+        for (unsigned int i=argst;i<argc;i++)
+            texto_mensagem += string(argv[i]) + string(" ");
+    }
     
     //Obter mensagem a partir de um comando pipe
     /*vector<char> someData(100, '-');
     cin.read(&someData.front(), someData.size());
     someData.back() = '\0';
     printf("DADOS: " << someData.data()[0] << endl;*/
+
+    //Obter posições e dimensões do terminal
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
     unsigned int texto_tamanho = caractere_tamanho * texto_mensagem.length();
     unsigned int texto_x = w.ws_col + texto_tamanho;
@@ -405,9 +410,9 @@ int main(int argc, char* argv[]){
     
     while (texto_x > 0){
         if (debug){
-            printf("parameters: %d; sleep: %d",(strlen(argv[1]) - 1),tempo);
-            printf("; color: %d; color timeout: %d",cor,cor_tempo);
-            printf("; window width: %d; text size: %d\n",w.ws_col,texto_tamanho);
+            printf("parâmetros: %d; sleep: %d",(strlen(argv[1]) - 1),tempo);
+            printf("; cor: %d; color timeout: %d",cor,cor_tempo);
+            printf("; largura da janela: %d; tamanho do texto: %d\n",w.ws_col,texto_tamanho);
         }
 
         //Espaçamento superior
@@ -460,7 +465,7 @@ int main(int argc, char* argv[]){
         }
         printf("\x1B[2J\x1B[H"); //Limpar terminal
 
-        //Limpar o programa
+        //Terminar o programa
         if (kbhit())
             texto_x = 0;
     }
