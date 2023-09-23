@@ -21,3 +21,4 @@ Bashsays v1.0.0 por Ewerton Bramos
    -p [text symbol] [bg symbol] [border symbol]: altera os símbolos das mensagens.
 
    Saia do programa digitando CTRL^C ou Q.
+ 

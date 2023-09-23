@@ -288,11 +288,18 @@ int main(int argc, char* argv[]){
     //Exibir ajuda
     if ((argc == 1) || (argc == 2 && argv[1][0] == '-')){
         FILE *ajd;
-        ajd = fopen("doc/ajuda.txt","r");
-        char txt[100];
-        while (fgets(txt,100,ajd))
-            printf("%s",txt);
-        fclose(ajd);
+        ajd = fopen("/usr/bin/bashsays-pt-BR.txt","r");
+        if (!ajd){
+            ajd = fopen("src/bashsays-pt-BR.txt","r");
+        }
+        if (ajd){
+            char txt[100];
+            while (fgets(txt,100,ajd))
+                printf("%s",txt);
+            fclose(ajd);
+        }else{
+            printf("Manual \"bashsays-pt-BR.txt\" não encontrado =(\n");
+        }
         return 0;
     }
     
@@ -363,11 +370,16 @@ int main(int argc, char* argv[]){
     if (texto_mensagem != " "){
         FILE *ajd;
         ajd = fopen(texto_mensagem.c_str(),"r");
-        texto_mensagem = " ";
-        char txt[100];
-        while (fgets(txt,100,ajd))
-            texto_mensagem += txt;
-        fclose(ajd);
+        if (ajd){
+            texto_mensagem = " ";
+            char txt[100];
+            while (fgets(txt,100,ajd))
+                texto_mensagem += txt;
+            fclose(ajd);
+        }else{
+            printf("Não existe nenhum arquivo chamado \"%s\" nesse diretório.\n",texto_mensagem.c_str());
+            return 0;
+        }
     }
     else{
         //Se tiver argumentos com valores sem texto a exibir, finalizar

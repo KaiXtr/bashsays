@@ -20,9 +20,13 @@ em uma variedade de cores, velocidades e parâmetros.
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/%{_bindir}
 cp %{name} $RPM_BUILD_ROOT/%{_bindir}
+cp bashsays-pt-BR.txt $RPM_BUILD_ROOT/%{_bindir}
+cp bashsays-en-US.txt $RPM_BUILD_ROOT/%{_bindir}
 
 %files
 %{_bindir}/%{name}
+%{_bindir}/bashsays-pt-BR.txt
+%{_bindir}/bashsays-en-US.txt
 
 %changelog
 * Sun Sep 17 2023 KaiXtr <ewertonmatheus2113@gmail.com>
