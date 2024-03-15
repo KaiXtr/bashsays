@@ -1,4 +1,5 @@
 Bashsays v1.0.0 por Ewerton Bramos
+GitHub: @KaiXtr
    bashsays [-args] [args valor] "mensagem"
    
    -o [arquivo]: o programa exibe o conteúdo de um arquivo.

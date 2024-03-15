@@ -1,4 +1,5 @@
 Bashsays v1.0.0 by Ewerton Bramos
+GitHub: @KaiXtr
    bashsays [-args] [args value] "message"
    
    -o [file]: show the contents of a file.
