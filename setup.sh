@@ -2,10 +2,11 @@
 
 VERSAO="1.0.0"
 RPMCAMINHO=~/rpmbuild
+FEDORA="fc39"
 
 # Instalar programas necessários
 echo "Verificando programas instalados..."
-sudo dnf install rpmdevtools rpmlint
+sudo dnf install g++ rpmdevtools rpmlint
 echo " "
 sleep 2
 
@@ -57,7 +58,7 @@ echo "Deseja instalar o bashsays no terminal? (y/n): "
 read conf
 if [[ $conf == "y" || $conf == "Y" ]]; then
     sudo dnf remove --assumeyes bashsays
-    sudo dnf install --assumeyes "./RPMS/x86_64/bashsays-$VERSAO-1.fc38.x86_64.rpm"
+    sudo dnf install --assumeyes "./RPMS/x86_64/bashsays-$VERSAO-1.$FEDORA.x86_64.rpm"
 fi
 
 # Exibir resultado final
